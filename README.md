@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Travel Kuy — Website System
 
-## Getting Started
+Aplikasi web monolith untuk bisnis travel **Travel Kuy**: Landing Page, Company Profile, dan sistem katalog booking yang mengarahkan user ke WhatsApp Admin. Dibangun dengan Next.js (App Router) + Tailwind CSS + Supabase.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Framework:** Next.js 16 (App Router) + TypeScript
+- **Styling:** Tailwind CSS v4
+- **Database & Auth:** Supabase (PostgreSQL + Auth)
+- **Form:** React Hook Form
+- **Icons:** lucide-react
+
+## Setup Environment Variable Supabase
+
+1. Buat project di [supabase.com](https://supabase.com).
+2. Buka **Project Settings → API** untuk menyalin:
+   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+3. Buat file `.env.local` di root project:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGci...
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Jalankan skema & seed di Supabase SQL Editor (urutan: `schema.sql` lalu `seed.sql`):
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# file: supabase/schema.sql  -> buat tabel + RLS policy
+# file: supabase/seed.sql    -> isi 3 dummy trip
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+> Nomor WhatsApp Admin default: `6287811165612` (format internasional untuk `wa.me`).
 
-## Learn More
+## Cara Run Aplikasi Secara Lokal
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Buka <http://localhost:3000>.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Build produksi:
 
-## Deploy on Vercel
+```bash
+npm run build
+npm run start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Struktur Direktori
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+  app/
+    page.tsx                 # Landing page (Hero, About, Features)
+    trips/                   # Katalog trip publik + loading skeleton
+    trips/[id]/booking/      # Form booking + redirect WhatsApp
+    admin/login/             # Login admin (Supabase Auth)
+    admin/dashboard/         # CRUD dashboard (terproteksi)
+    admin/dashboard/create/  # Tambah trip
+    admin/dashboard/edit/[id]/ # Edit trip / update slot
+    not-found.tsx            # Halaman 404 custom
+  components/                # Navbar, Footer
+  lib/supabase/              # client.ts (browser) & server.ts (server)
+  lib/types/                 # Interface Trip
+  middleware.ts              # Proteksi rute /admin/*
+supabase/                    # schema.sql & seed.sql
+```
+
+## Alur Kerja Sistem
+
+1. **User melihat katalog** — `GET /trips` menampilkan semua trip dari tabel `trips` (public read via RLS).
+2. **User booking** — di `/trips/[id]/booking`, user isi Nama, WhatsApp, Jumlah Peserta. Data **tidak disimpan ke DB**.
+3. **Redirect ke WhatsApp** — pesan otomatis dirangkai & di-encode, lalu membuka `https://wa.me/<nomor_admin>?text=...` di tab baru.
+4. **Admin update slot** — setelah deal di WhatsApp, admin login ke `/admin/dashboard`, edit trip, dan kurangi `available_slots` secara manual. Perubahan langsung tampil di katalog publik.
+
+## Auth & Keamanan
+
+- RLS: tabel `trips` bisa **di-read publik**, tapi **write/update/delete hanya untuk user terautentikasi**.
+- Rute `/admin/*` diproteksi `middleware.ts`; user belum login di-redirect ke `/admin/login`.
+- Tidak ada payment online — seluruh transaksi dilakukan di WhatsApp.

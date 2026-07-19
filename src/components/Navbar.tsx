@@ -2,25 +2,28 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { Plane, Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/trips", label: "Trips" },
   { href: "/#contact", label: "Contact" },
-  { href: "/admin/login", label: "Admin Login" },
+  { href: "/admin/login", label: "Admin" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-emerald-100 bg-white/90 backdrop-blur">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-emerald-100 bg-white/80 backdrop-blur-md">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xl font-extrabold tracking-tight text-emerald-700"
+          className="flex items-center gap-2 text-lg font-extrabold tracking-tight text-emerald-700"
         >
-          <span className="text-2xl">✈️</span>
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white">
+            <Plane className="h-5 w-5" />
+          </span>
           Travel Kuy
         </Link>
 
@@ -29,7 +32,7 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="text-sm font-medium text-slate-700 transition-colors hover:text-emerald-700"
+                className="text-sm font-medium text-slate-600 transition-colors hover:text-emerald-700"
               >
                 {link.label}
               </Link>
@@ -41,9 +44,9 @@ export default function Navbar() {
           type="button"
           aria-label="Toggle menu"
           onClick={() => setOpen(!open)}
-          className="flex h-9 w-9 items-center justify-center rounded-md text-slate-700 hover:bg-emerald-50 md:hidden"
+          className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-600 transition-colors hover:bg-emerald-50 md:hidden"
         >
-          <span className="text-xl">{open ? "✕" : "☰"}</span>
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </nav>
 
@@ -54,7 +57,7 @@ export default function Navbar() {
               <Link
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="block py-2 text-sm font-medium text-slate-700 hover:text-emerald-700"
+                className="block py-2 text-sm font-medium text-slate-600 hover:text-emerald-700"
               >
                 {link.label}
               </Link>
