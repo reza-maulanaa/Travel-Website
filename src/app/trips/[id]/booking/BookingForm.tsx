@@ -118,7 +118,7 @@ export default function BookingForm({ trip }: { trip: Trip }) {
       .map((id) => ADDON_OPTIONS.find((a) => a.id === id)?.label)
       .filter(Boolean);
 
-    const message = [
+    const parts: string[] = [
       `Halo Admin Travel Kuy! 👋`,
       ``,
       `Saya ingin booking trip:`,
@@ -130,17 +130,19 @@ export default function BookingForm({ trip }: { trip: Trip }) {
       `• Nama: ${data.name}`,
       `• Email: ${data.email}`,
       `• WhatsApp: ${data.phone}`,
-      data.specialRequests
-        ? `• Catatan: ${data.specialRequests}`
-        : "",
-      addonLabels.length > 0
-        ? `\n*Add-on:* ${addonLabels.join(", ")}`
-        : "",
-      ``,
-      `Apakah slot masih tersedia? Terima kasih! 🙏`,
-    ]
-      .filter((line) => line !== undefined)
-      .join("\n");
+    ];
+
+    if (data.specialRequests) {
+      parts.push(`• Catatan: ${data.specialRequests}`);
+    }
+
+    if (addonLabels.length > 0) {
+      parts.push(``, `*Add-on:* ${addonLabels.join(", ")}`);
+    }
+
+    parts.push(``, `Apakah slot masih tersedia? Terima kasih! 🙏`);
+
+    const message = parts.join("\n");
 
     const encoded = encodeURIComponent(message);
     const waUrl = `https://wa.me/${trip.whatsapp_number}?text=${encoded}`;
