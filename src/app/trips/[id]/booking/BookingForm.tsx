@@ -90,7 +90,7 @@ export default function BookingForm({ trip }: { trip: Trip }) {
     },
   });
 
-  const participants = watch("participants") || 1;
+  const participants = Number(watch("participants")) || 1;
 
   const basePrice = trip.price * participants;
   const adminFee = Math.round(basePrice * 0.05);
